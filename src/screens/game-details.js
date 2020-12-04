@@ -1,114 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  ActivityIndicator,
-  TouchableOpacity,
-} from 'react-native';
-
+import { Container, H3 } from 'native-base';
+import { View, Text, StyleSheet } from 'react-native';
 import { getGameDetails } from '../services';
+import { Rating } from 'react-native-ratings';
+import GalleryHeader from '../components/GalleryHeader';
 
 const GameDetails = (props) => {
-  const [game, setGame] = useState([]);
-  const [gameId, setGameId] = useState(null);
-  const [updatedName, setUpdatedName] = useState(null);
-  const [error, setError] = useState(false);
-  const [toggleFetch, toogleFetchAgain] = useState(false);
+  const [game, setGame] = useState(null);
 
   useEffect(() => {
     const {
       route: {
-        params: { id, updatedName: name },
+        params: { id },
       },
     } = props;
-    setGameId(id);
-    setUpdatedName(name);
     getGameDetails({ id })
       .then((gameData) => {
+        console.log(gameData);
         setGame(gameData);
       })
       .catch((err) => {
         console.log('GameDetails -> err', err);
-        setError(true);
       });
-  }, [props, toggleFetch]);
+  }, [props]);
 
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Something went wrong!</Text>
-        <TouchableOpacity
-          onPress={() => {
-            setError(false);
-            toogleFetchAgain(!toggleFetch);
-          }}
-          style={styles.appButtonContainer}>
-          <Text style={styles.appButtonText}>{'Try Again'}</Text>
-        </TouchableOpacity>
-      </View>
-    );
+  const separateImagesAndVideos = () => {
+    const items = [];
+    items.push({ type: 'image', source: game.background_image });
+    items.push({ type: 'video', source: game.clip.clip });
+    return items;
+  };
+
+  if (!game) {
+    return <Text>Loading...</Text>;
   }
 
   return (
     <View style={styles.container}>
-      <View>
-        <Text style={styles.title}>
-          {updatedName !== undefined ? updatedName : game?.name}
-        </Text>
-        {game?.background_image !== undefined ? (
-          <>
-            <Image
-              style={styles.gameImage}
-              source={{
-                uri: game?.background_image,
-              }}
+      <View style={styles.header}>
+        <GalleryHeader items={separateImagesAndVideos()} />
+      </View>
+      <View style={styles.body}>
+        <Container>
+          <View style={styles.titleWrapper}>
+            <H3 style={styles.title}>{game.name}</H3>
+            <Rating
+              style={styles.rating}
+              imageSize={22}
+              ratingCount={5}
+              readonly={true}
+              startingValue={game.rating / 2}
             />
-            <TouchableOpacity
-              onPress={() => props.onPressNext(gameId)}
-              style={styles.appButtonContainer}>
-              <Text style={styles.appButtonText}>{'Next'}</Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <ActivityIndicator />
-        )}
+          </View>
+        </Container>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  gameImage: {
-    width: 350,
-    height: 350,
+  container: { flex: 1, flexDirection: 'column' },
+  header: {
+    flexBasis: '30%',
+  },
+  body: {
+    flex: 1,
+  },
+  titleWrapper: {
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   title: {
-    margin: 10,
-    fontSize: 20,
     fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 15,
+    flex: 1,
+    borderWidth: 1,
   },
-  button: {
-    top: 40,
-    borderWidth: 2,
-  },
-  appButtonContainer: {
-    top: 20,
-    elevation: 8,
-    backgroundColor: '#009688',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
-  appButtonText: {
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: 'bold',
-    alignSelf: 'center',
-    textTransform: 'uppercase',
+  rating: {
+    flex: 1,
+    borderWidth: 1,
   },
 });
 
