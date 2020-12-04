@@ -3,12 +3,14 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '10.0'
 
-target 'ReactTestApp' do
+target 'GameWorld' do
   config = use_native_modules!
 
   use_react_native!(:path => config["reactNativePath"])
 
-  target 'ReactTestAppTests' do
+  pod 'react-native-video', :path => '../node_modules/react-native-video'
+
+  target 'GameWorldTests' do
     inherit! :complete
     # Pods for testing
   end
@@ -23,10 +25,10 @@ target 'ReactTestApp' do
   end
 end
 
-target 'ReactTestApp-tvOS' do
-  # Pods for ReactTestApp-tvOS
+target 'GameWorld-tvOS' do
+  # Pods for GameWorld-tvOS
 
-  target 'ReactTestApp-tvOSTests' do
+  target 'GameWorld-tvOSTests' do
     inherit! :search_paths
     # Pods for testing
   end
