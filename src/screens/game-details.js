@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
+import Video from 'react-native-video';
 
 import { getGameDetails } from '../services';
 
@@ -16,6 +17,7 @@ const GameDetails = (props) => {
   const [updatedName, setUpdatedName] = useState(null);
   const [error, setError] = useState(false);
   const [toggleFetch, toogleFetchAgain] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(false);
 
   useEffect(() => {
     const {
@@ -51,6 +53,29 @@ const GameDetails = (props) => {
     );
   }
 
+  // if (isBuffering) {
+  //   return (
+  //     <View style={styles.container}>
+  //       <Text style={styles.title}>Something went wrong!</Text>
+  //       <TouchableOpacity
+  //         onPress={() => {
+  //           setError(false);
+  //           toogleFetchAgain(!toggleFetch);
+  //           setIsBuffering(!isBuffering);
+  //         }}
+  //         style={styles.appButtonContainer}>
+  //         <Text style={styles.appButtonText}>{'Try Again'}</Text>
+  //       </TouchableOpacity>
+  //     </View>
+  //   );
+  // }
+
+  console.log(game);
+
+  const onBuffer = () => {
+    setIsBuffering(true);
+  };
+
   return (
     <View style={styles.container}>
       <View>
@@ -65,6 +90,17 @@ const GameDetails = (props) => {
                 uri: game?.background_image,
               }}
             />
+
+            {
+              <Video
+                source={{ uri: game?.clip?.clip }}
+                style={styles.backgroundVideo}
+                onBuffer={onBuffer}
+                onError={() => console.log('error')}
+                controls
+              />
+            }
+
             <TouchableOpacity
               onPress={() => props.onPressNext(gameId)}
               style={styles.appButtonContainer}>
@@ -80,6 +116,15 @@ const GameDetails = (props) => {
 };
 
 const styles = StyleSheet.create({
+  backgroundVideo: {
+    // position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    width: 380,
+    height: 250,
+  },
   container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   gameImage: {
     width: 350,

@@ -129,7 +129,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.reacttestapp"
+        applicationId "com.gameworld"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
