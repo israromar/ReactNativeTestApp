@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Container, H3 } from 'native-base';
+import { Body, Card, CardItem, H3 } from 'native-base';
 import { View, Text, StyleSheet } from 'react-native';
 import { getGameDetails } from '../services';
 import { Rating } from 'react-native-ratings';
 import GalleryHeader from '../components/GalleryHeader';
+import FullScreenLoader from '../components/FullScreenLoader';
 
 const GameDetails = (props) => {
   const [game, setGame] = useState(null);
-
+  const [showMore, toggleShowMore] = useState(false);
   useEffect(() => {
     const {
       route: {
@@ -32,7 +33,7 @@ const GameDetails = (props) => {
   };
 
   if (!game) {
-    return <Text>Loading...</Text>;
+    return <FullScreenLoader />;
   }
 
   return (
@@ -41,18 +42,43 @@ const GameDetails = (props) => {
         <GalleryHeader items={separateImagesAndVideos()} />
       </View>
       <View style={styles.body}>
-        <Container>
-          <View style={styles.titleWrapper}>
-            <H3 style={styles.title}>{game.name}</H3>
-            <Rating
-              style={styles.rating}
-              imageSize={22}
-              ratingCount={5}
-              readonly={true}
-              startingValue={game.rating / 2}
-            />
-          </View>
-        </Container>
+        <Card style={styles.card}>
+          <CardItem>
+            <Body>
+              <View style={styles.titleWrapper}>
+                <H3 style={styles.title}>{game.name}</H3>
+                <Rating
+                  style={styles.rating}
+                  imageSize={22}
+                  ratingCount={5}
+                  readonly={true}
+                  startingValue={game.rating / 2}
+                />
+              </View>
+              <View>
+                {showMore ? (
+                  <Text>
+                    {game.description_raw}
+                    <Text
+                      style={styles.showMoreText}
+                      onPress={() => toggleShowMore(false)}>
+                      show less
+                    </Text>
+                  </Text>
+                ) : (
+                  <Text>
+                    {game.description_raw.slice(0, 160)} .....{' '}
+                    <Text
+                      style={styles.showMoreText}
+                      onPress={() => toggleShowMore(true)}>
+                      show more
+                    </Text>
+                  </Text>
+                )}
+              </View>
+            </Body>
+          </CardItem>
+        </Card>
       </View>
     </View>
   );
@@ -65,21 +91,27 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
+    alignItems: 'center',
+  },
+  card: {
+    width: 350,
+    marginTop: -23,
   },
   titleWrapper: {
-    padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
   title: {
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 12,
     flex: 1,
-    borderWidth: 1,
   },
   rating: {
     flex: 1,
-    borderWidth: 1,
+    height: '100%',
+  },
+  showMoreText: {
+    color: 'blue',
   },
 });
 
