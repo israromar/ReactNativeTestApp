@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Body, Card, CardItem, H3 } from 'native-base';
-import { View, Text, StyleSheet } from 'react-native';
+import { Body, Button, Card, CardItem, H3, Icon } from 'native-base';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { getGameDetails } from '../services';
 import { Rating } from 'react-native-ratings';
-import GalleryHeader from '../components/GalleryHeader';
+import Modal from 'react-native-modal';
+import Video from 'react-native-video';
 import FullScreenLoader from '../components/FullScreenLoader';
 
 const GameDetails = (props) => {
   const [game, setGame] = useState(null);
   const [showMore, toggleShowMore] = useState(false);
+  const [showTrailer, toggleTrailer] = useState(false);
   useEffect(() => {
     const {
       route: {
@@ -25,13 +27,6 @@ const GameDetails = (props) => {
       });
   }, [props]);
 
-  const separateImagesAndVideos = () => {
-    const items = [];
-    items.push({ type: 'image', source: game.background_image });
-    items.push({ type: 'video', source: game.clip.clip });
-    return items;
-  };
-
   if (!game) {
     return <FullScreenLoader />;
   }
@@ -39,7 +34,16 @@ const GameDetails = (props) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <GalleryHeader items={separateImagesAndVideos()} />
+        <Image source={{ uri: game.background_image }} style={styles.image} />
+        <Button
+          style={styles.trailerBtn}
+          iconLeft
+          light
+          onPress={() => toggleTrailer(!showTrailer)}>
+          <Text style={styles.buttonTxt}>Watch Trailer</Text>
+          <Icon name={'play'} style={styles.buttonTxt} />
+        </Button>
+        <View style={styles.overlay} />
       </View>
       <View style={styles.body}>
         <Card style={styles.card}>
@@ -80,6 +84,20 @@ const GameDetails = (props) => {
           </CardItem>
         </Card>
       </View>
+      <Modal isVisible={showTrailer}>
+        <View style={styles.modalBody}>
+          <Card>
+            <CardItem>
+              <Body>
+                <Video source={{ uri: game.clip.clip }} style={styles.video} />
+                <Button onPress={() => toggleTrailer(false)}>
+                  <Text style={styles.buttonTxt}>Close</Text>
+                </Button>
+              </Body>
+            </CardItem>
+          </Card>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -88,6 +106,32 @@ const styles = StyleSheet.create({
   container: { flex: 1, flexDirection: 'column' },
   header: {
     flexBasis: '30%',
+    position: 'relative',
+  },
+  image: {
+    flex: 1,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#000',
+    opacity: 0.3,
+  },
+  trailerBtn: {
+    position: 'absolute',
+    right: 30,
+    bottom: 30,
+    paddingLeft: 20,
+    paddingRight: 20,
+    justifyContent: 'space-between',
+    zIndex: 1,
+  },
+  buttonTxt: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   body: {
     flex: 1,
@@ -112,6 +156,15 @@ const styles = StyleSheet.create({
   },
   showMoreText: {
     color: 'blue',
+  },
+  modalBody: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  video: {
+    width: 500,
+    height: 200,
   },
 });
 
