@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Body, Button, Card, CardItem, H3, Icon } from 'native-base';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import { getGameDetails } from '../services';
 import { Rating } from 'react-native-ratings';
-import Modal from 'react-native-modal';
-import Video from 'react-native-video';
+// import Modal from 'react-native-modal';
+// import Video from 'react-native-video';
 import FullScreenLoader from '../components/FullScreenLoader';
+import { useNavigation } from '@react-navigation/native';
+import { AppRoute } from '../navigation/app-routes';
 
 const GameDetails = (props) => {
   const [game, setGame] = useState(null);
-  const [showMore, toggleShowMore] = useState(false);
-  const [showTrailer, toggleTrailer] = useState(false);
+  const navigation = useNavigation();
+  // const [showTrailer, toggleTrailer] = useState(false);
   useEffect(() => {
     const {
       route: {
@@ -39,7 +41,9 @@ const GameDetails = (props) => {
           style={styles.trailerBtn}
           iconLeft
           light
-          onPress={() => toggleTrailer(!showTrailer)}>
+          onPress={() =>
+            navigation.navigate(AppRoute.GAME_TRAILER, { uri: game.clip.clip })
+          }>
           <Text style={styles.buttonTxt}>Watch Trailer</Text>
           <Icon name={'play'} style={styles.buttonTxt} />
         </Button>
@@ -59,32 +63,14 @@ const GameDetails = (props) => {
                   startingValue={game.rating / 2}
                 />
               </View>
-              <View>
-                {showMore ? (
-                  <Text>
-                    {game.description_raw}
-                    <Text
-                      style={styles.showMoreText}
-                      onPress={() => toggleShowMore(false)}>
-                      show less
-                    </Text>
-                  </Text>
-                ) : (
-                  <Text>
-                    {game.description_raw.slice(0, 160)} .....{' '}
-                    <Text
-                      style={styles.showMoreText}
-                      onPress={() => toggleShowMore(true)}>
-                      show more
-                    </Text>
-                  </Text>
-                )}
-              </View>
+              <ScrollView style={styles.descriptionWrapper}>
+                <Text>{game.description_raw}</Text>
+              </ScrollView>
             </Body>
           </CardItem>
         </Card>
       </View>
-      <Modal isVisible={showTrailer}>
+      {/* <Modal isVisible={showTrailer}>
         <View style={styles.modalBody}>
           <Card>
             <CardItem>
@@ -97,7 +83,7 @@ const GameDetails = (props) => {
             </CardItem>
           </Card>
         </View>
-      </Modal>
+      </Modal> */}
     </View>
   );
 };
@@ -148,7 +134,10 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     fontSize: 12,
-    flex: 1,
+    flex: 2,
+  },
+  descriptionWrapper: {
+    height: 100,
   },
   rating: {
     flex: 1,
